@@ -1,10 +1,16 @@
 <!DOCTYPE html>
-<html>
+<html lang="pt-BR">
 <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Redirecionar para Player</title>
 </head>
 <body>
-    <button onclick="createAndRedirectToPage()">Ir para o Player</button>
+    <button onclick="createAndRedirectToPage(
+        'https://ed.netmagcdn.com:2228/hls-playback/6924699f58a8c7985499adf45df9480e8fd27ed2674ed9cac60d597e5cec5a3e2ad73d171e74ac0bc966f373e9fef65b21a9458e3d2dd2fb55b51c927e8996b9fc6c6e5079dbe46138a2645442f5fff9de46410542fb66e21a4eaf40f2a4ce9acc53ae24e55cf16ed53b58d3281020820f5c9dd04fcac5aaf2d399442c5fbdf1be8702534660ea8daf01a379f1dd103a/master.m3u8',
+        'https://s.megastatics.com/subtitle/5fe40598aa5ba371efd15fdb150920e5/5fe40598aa5ba371efd15fdb150920e5.vtt',
+        'Meu Vídeo Exemplo'
+    )">Ir para o Player</button>
     <script src="gen-player.js"></script>
 </body>
 </html>
