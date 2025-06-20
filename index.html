@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Player HLS com Legendas via URL</title>
+    <!-- Importar CSS do Video.js -->
+    <link href="https://vjs.zencdn.net/8.10.0/video-js.css" rel="stylesheet" />
+</head>
+<body>
+    <!-- Elemento de vídeo -->
+    <video
+        id="my-video"
+        class="video-js vjs-default-skin"
+        controls
+        preload="auto"
+        width="640"
+        height="360"
+        data-setup='{}'>
+    </video>
+
+    <!-- Importar Video.js -->
+    <script src="https://vjs.zencdn.net/8.10.0/video.min.js"></script>
+    <script>
+        // Função para extrair parâmetros da URL
+        function getQueryParam(param) {
+            const urlParams = new URLSearchParams(window.location.search);
+            return urlParams.get(param);
+        }
+
+        // Obter URLs dos parâmetros
+        const hlsUrl = getQueryParam('hls');
+        const vttUrl = getQueryParam('vtt');
+
+        // Inicializar o player
+        const player = videojs('my-video');
+
+        // Configurar a fonte HLS, se fornecida
+        if (hlsUrl) {
+            player.src({
+                src: hlsUrl,
+                type: 'application/x-mpegURL'
+            });
+        } else {
+            console.error('Parâmetro HLS não fornecido na URL');
+        }
+
+        // Configurar as legendas VTT, se fornecidas
+        if (vttUrl) {
+            player.addRemoteTextTrack({
+                kind: 'subtitles',
+                src: vttUrl,
+                srclang: 'pt',
+                label: 'Português',
+                default: true
+            }, false);
+        } else {
+            console.warn('Parâmetro VTT não fornecido na URL');
+        }
+    </script>
+</body>
+</html>
