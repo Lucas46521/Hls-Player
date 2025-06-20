@@ -3,25 +3,16 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>HLS Player</title>
+    <title>Player HLS com Legendas Dinâmico</title>
     <!-- Importar CSS do Video.js -->
     <link href="https://vjs.zencdn.net/8.10.0/video-js.css" rel="stylesheet" />
 </head>
 <body>
-    <!-- Elemento de vídeo -->
-    <video
-        id="my-video"
-        class="video-js vjs-default-skin"
-        controls
-        preload="auto"
-        width="640"
-        height="360"
-        data-setup='{}'>
-    </video>
+    <!-- Container onde o player será inserido -->
+    <div id="player-container"></div>
 
-    <!-- Importar Video.js e hls.js -->
+    <!-- Importar Video.js -->
     <script src="https://vjs.zencdn.net/8.10.0/video.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/hls.js@1"></script>
     <script>
         // Função para extrair parâmetros da URL
         function getQueryParam(param) {
@@ -33,58 +24,55 @@
         const hlsUrl = getQueryParam('hls');
         const vttUrl = getQueryParam('vtt');
 
-        // Inicializar o player
-        const player = videojs('my-video', {
-            html5: {
-                nativeVideoTracks: false,
-                nativeAudioTracks: false,
-                nativeTextTracks: false
+        // Função para gerar o player dinamicamente
+        function createPlayer() {
+            if (!hlsUrl) {
+                document.getElementById('player-container').innerHTML = 
+                    '<p>Erro: Parâmetro HLS não fornecido na URL.</p>';
+                return;
             }
-        });
 
-        // Configurar a fonte HLS
-        if (hlsUrl) {
-            // Verificar suporte nativo a HLS
-            const videoElement = document.getElementById('my-video');
-            if (videoElement.canPlayType('application/vnd.apple.mpegurl')) {
-                // Suporte nativo (ex.: Safari)
-                player.src({
-                    src: hlsUrl,
-                    type: 'application/x-mpegURL'
-                });
-            } else if (Hls.isSupported()) {
-                // Usar hls.js para navegadores sem suporte nativo
-                const hls = new Hls();
-                hls.loadSource(hlsUrl);
-                hls.attachMedia(videoElement);
-                hls.on(Hls.Events.MANIFEST_PARSED, () => {
-                    player.play();
-                });
-                hls.on(Hls.Events.ERROR, (event, data) => {
-                    console.error('Erro no hls.js:', data);
-                    alert('Erro ao carregar o stream HLS: ' + data.details);
-                });
-            } else {
-                console.error('HLS não é suportado neste navegador.');
-                alert('Seu navegador não suporta HLS.');
+            // Criar elemento de vídeo
+            const videoElement = document.createElement('video');
+            videoElement.id = 'my-video';
+            videoElement.className = 'video-js vjs-default-skin';
+            videoElement.setAttribute('controls', '');
+            videoElement.setAttribute('preload', 'auto');
+            videoElement.setAttribute('width', '640');
+            videoElement.setAttribute('height', '360');
+
+            // Adicionar fonte HLS
+            const sourceElement = document.createElement('source');
+            sourceElement.src = hlsUrl;
+            sourceElement.type = 'application/x-mpegURL';
+            videoElement.appendChild(sourceElement);
+
+            // Adicionar legenda VTT, se fornecida
+            if (vttUrl) {
+                const trackElement = document.createElement('track');
+                trackElement.kind = 'subtitles';
+                trackElement.src = vttUrl;
+                trackElement.srclang = 'pt';
+                trackElement.label = 'Português';
+                trackElement.default = true;
+                videoElement.appendChild(trackElement);
             }
-        } else {
-            console.error('Parâmetro HLS não fornecido na URL.');
-            alert('URL do HLS não fornecida.');
+
+            // Inserir vídeo no container
+            document.getElementById('player-container').appendChild(videoElement);
+
+            // Inicializar Video.js
+            const player = videojs('my-video', {}, function() {
+                console.log('Player inicializado');
+                // Verificar erros de carregamento
+                this.on('error', function() {
+                    console.error('Erro no player:', this.error());
+                });
+            });
         }
 
-        // Configurar as legendas VTT
-        if (vttUrl) {
-            player.addRemoteTextTrack({
-                kind: 'subtitles',
-                src: vttUrl,
-                srclang: 'pt',
-                label: 'Português',
-                default: true
-            }, false);
-        } else {
-            console.warn('Parâmetro VTT não fornecido na URL.');
-        }
+        // Executar quando a página carregar
+        window.onload = createPlayer;
     </script>
 </body>
 </html>
